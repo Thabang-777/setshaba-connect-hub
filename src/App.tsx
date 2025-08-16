@@ -7,6 +7,11 @@ import { AppProvider } from "@/contexts/AppContext";
 import { NavBar } from "@/components/NavBar";
 import { Home } from "@/pages/citizen/Home";
 import { Issues } from "@/pages/citizen/Issues";
+import { Report } from "@/pages/citizen/Report";
+import { Events } from "@/pages/citizen/Events";
+import { Feedback } from "@/pages/citizen/Feedback";
+import { Login } from "@/pages/admin/Login";
+import { Dashboard } from "@/pages/admin/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +27,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/issues" element={<Issues />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/admin" element={<Login />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
