@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/contexts/AppContext";
 import { Category } from "@/data/mockData";
-import { Camera, Send } from "lucide-react";
+import { Camera, Send, MapPin, Locate } from "lucide-react";
 
 export const Report: React.FC = () => {
   const { toast } = useToast();
@@ -20,6 +20,67 @@ export const Report: React.FC = () => {
     description: "",
     imageUrl: ""
   });
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleUseCurrentLocation = () => {
+    setIsLocating(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser doesn't support location services.",
+        variant: "destructive"
+      });
+      setIsLocating(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        // In a real app, you'd reverse geocode these coordinates
+        const locationString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+        setFormData(prev => ({ ...prev, location: locationString }));
+        setIsLocating(false);
+        toast({
+          title: "Location Added",
+          description: "Your current location has been added to the report.",
+        });
+      },
+      (error) => {
+        setIsLocating(false);
+        toast({
+          title: "Location Error",
+          description: "Unable to get your location. Please enter it manually.",
+          variant: "destructive"
+        });
+      }
+    );
+  };
+
+  const handlePhotoUpload = () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment'; // This will prefer the camera on mobile devices
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // In a real app, you'd upload this to a server and get back a URL
+        // For now, we'll create a local URL for demo purposes
+        const localUrl = URL.createObjectURL(file);
+        setFormData(prev => ({ ...prev, imageUrl: localUrl }));
+        toast({
+          title: "Photo Added",
+          description: "Your photo has been attached to the report.",
+        });
+      }
+    };
+    
+    input.click();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,13 +179,33 @@ export const Report: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Street address or area"
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Street address or area"
+                    required
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleUseCurrentLocation}
+                    disabled={isLocating}
+                    className="flex items-center gap-2"
+                  >
+                    {isLocating ? (
+                      <Locate className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MapPin className="h-4 w-4" />
+                    )}
+                    {isLocating ? "Locating..." : "Use Location"}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Click "Use Location" to automatically add your current location
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -140,18 +221,37 @@ export const Report: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Photo URL (Optional)</Label>
+                <Label htmlFor="imageUrl">Photo (Optional)</Label>
                 <div className="flex gap-2">
                   <Input
                     id="imageUrl"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                    placeholder="https://example.com/photo.jpg"
+                    placeholder="Photo URL or click camera to upload"
+                    className="flex-1"
                   />
-                  <Button type="button" variant="outline" size="icon">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handlePhotoUpload}
+                    className="flex items-center gap-2"
+                  >
                     <Camera className="h-4 w-4" />
+                    Upload
                   </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Take a photo or upload from your device to help us understand the issue better
+                </p>
+                {formData.imageUrl && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Issue preview" 
+                      className="w-full max-w-xs h-32 object-cover rounded-md border"
+                    />
+                  </div>
+                )}
               </div>
 
               <Button type="submit" className="w-full" size="lg">
