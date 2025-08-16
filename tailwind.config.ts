@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -51,6 +52,24 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				/* Civic-specific colors */
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				urgent: {
+					DEFAULT: 'hsl(var(--urgent))',
+					foreground: 'hsl(var(--urgent-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				status: {
+					reported: 'hsl(var(--status-reported))',
+					progress: 'hsl(var(--status-progress))',
+					resolved: 'hsl(var(--status-resolved))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -88,7 +107,42 @@ export default {
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.4s ease-out',
+				'slide-up': 'slide-up 0.3s ease-out',
+				'progress-fill': 'progress-fill 1s ease-out',
+				'urgent-pulse': 'urgent-pulse 2s infinite'
+			},
+			keyframes: {
+				'fade-in': {
+					'0%': { opacity: '0', transform: 'translateY(10px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'slide-up': {
+					'0%': { opacity: '0', transform: 'translateY(20px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'progress-fill': {
+					'0%': { width: '0%' },
+					'100%': { width: 'var(--progress-width)' }
+				},
+				'urgent-pulse': {
+					'0%, 100%': { boxShadow: '0 0 0 0 hsl(var(--urgent) / 0.4)' },
+					'50%': { boxShadow: '0 0 0 8px hsl(var(--urgent) / 0)' }
+				}
+			},
+			maxWidth: {
+				'content': 'var(--content-max-width)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-urgent': 'var(--gradient-urgent)', 
+				'gradient-success': 'var(--gradient-success)'
+			},
+			boxShadow: {
+				'civic': 'var(--shadow-civic)',
+				'urgent': 'var(--shadow-urgent)',
+				'card': 'var(--shadow-card)'
 			}
 		}
 	},
