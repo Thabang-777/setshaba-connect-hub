@@ -36,16 +36,67 @@ export const Report: React.FC = () => {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
-        // In a real app, you'd reverse geocode these coordinates
-        const locationString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-        setFormData(prev => ({ ...prev, location: locationString }));
+        
+        try {
+          // Use reverse geocoding to get a proper address
+          const response = await fetch(
+            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=demo&limit=1`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+              const result = data.results[0];
+              const components = result.components;
+              
+              // Format address similar to existing data: "Street, City"
+              let locationString = "";
+              
+              if (components.road) {
+                locationString = components.road;
+              } else if (components.suburb) {
+                locationString = components.suburb;
+              } else if (components.neighbourhood) {
+                locationString = components.neighbourhood;
+              }
+              
+              if (components.city) {
+                locationString += locationString ? `, ${components.city}` : components.city;
+              } else if (components.town) {
+                locationString += locationString ? `, ${components.town}` : components.town;
+              } else if (components.village) {
+                locationString += locationString ? `, ${components.village}` : components.village;
+              }
+              
+              // Fallback to formatted address if components don't give us what we need
+              if (!locationString) {
+                locationString = result.formatted || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+              }
+              
+              setFormData(prev => ({ ...prev, location: locationString }));
+              toast({
+                title: "Location Added",
+                description: "Your current location has been added to the report.",
+              });
+            } else {
+              throw new Error("No results found");
+            }
+          } else {
+            throw new Error("Geocoding failed");
+          }
+        } catch (error) {
+          // Fallback to coordinates if reverse geocoding fails
+          const locationString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          setFormData(prev => ({ ...prev, location: locationString }));
+          toast({
+            title: "Location Added",
+            description: "Location coordinates have been added. You can edit this to be more specific.",
+          });
+        }
+        
         setIsLocating(false);
-        toast({
-          title: "Location Added",
-          description: "Your current location has been added to the report.",
-        });
       },
       (error) => {
         setIsLocating(false);
@@ -106,7 +157,6 @@ export const Report: React.FC = () => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         event: "Reported"
       }],
-      isUrgent: formData.category === "Water" || formData.title.toLowerCase().includes("burst"),
       reportedBy: "Citizen Report",
       reportedAt: new Date().toISOString()
     };

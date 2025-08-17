@@ -12,29 +12,14 @@ export const Login: React.FC = () => {
   const { toast } = useToast();
   const { setIsAdmin } = useApp();
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: ""
-  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Hardcoded credentials for demo
-    if (credentials.username === "admin" && credentials.password === "admin") {
-      setIsAdmin(true);
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin dashboard.",
-      });
-      navigate("/admin/dashboard");
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid username or password.",
-        variant: "destructive"
-      });
-    }
+  const handleAdminLogin = () => {
+    setIsAdmin(true);
+    toast({
+      title: "Admin Access Granted",
+      description: "Welcome to the admin dashboard.",
+    });
+    navigate("/admin/dashboard");
   };
 
   return (
@@ -46,45 +31,19 @@ export const Login: React.FC = () => {
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>
           <CardDescription>
-            Sign in to access the administrative dashboard
+            Click below to access the administrative dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={credentials.username}
-                onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                placeholder="Enter username"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={credentials.password}
-                onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                placeholder="Enter password"
-                required
-              />
-            </div>
-
-            <Button type="submit" className="w-full" size="lg">
-              <LogIn className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
-          </form>
-
+          <Button onClick={handleAdminLogin} className="w-full" size="lg">
+            <LogIn className="h-4 w-4 mr-2" />
+            Enter Admin Dashboard
+          </Button>
+          
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground text-center">
-              <strong>Demo Credentials:</strong><br />
-              Username: admin<br />
-              Password: admin
+              <strong>Demo Mode:</strong><br />
+              One-click access for demonstration purposes
             </p>
           </div>
         </CardContent>

@@ -1,3 +1,4 @@
+import React from "react";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { mockData, Issue, Event, Feedback, Announcement } from "@/data/mockData";
 
@@ -42,11 +43,45 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [issues, setIssues] = useState<Issue[]>(mockData.issues);
-  const [events, setEvents] = useState<Event[]>(mockData.events);
-  const [feedback, setFeedback] = useState<Feedback[]>(mockData.feedback);
-  const [announcements, setAnnouncements] = useState<Announcement[]>(mockData.announcements);
+  // Initialize state from localStorage or use mock data
+  const [issues, setIssues] = useState<Issue[]>(() => {
+    const saved = localStorage.getItem('setshaba-issues');
+    return saved ? JSON.parse(saved) : mockData.issues;
+  });
+  
+  const [events, setEvents] = useState<Event[]>(() => {
+    const saved = localStorage.getItem('setshaba-events');
+    return saved ? JSON.parse(saved) : mockData.events;
+  });
+  
+  const [feedback, setFeedback] = useState<Feedback[]>(() => {
+    const saved = localStorage.getItem('setshaba-feedback');
+    return saved ? JSON.parse(saved) : mockData.feedback;
+  });
+  
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    const saved = localStorage.getItem('setshaba-announcements');
+    return saved ? JSON.parse(saved) : mockData.announcements;
+  });
+  
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Save to localStorage whenever data changes
+  React.useEffect(() => {
+    localStorage.setItem('setshaba-issues', JSON.stringify(issues));
+  }, [issues]);
+  
+  React.useEffect(() => {
+    localStorage.setItem('setshaba-events', JSON.stringify(events));
+  }, [events]);
+  
+  React.useEffect(() => {
+    localStorage.setItem('setshaba-feedback', JSON.stringify(feedback));
+  }, [feedback]);
+  
+  React.useEffect(() => {
+    localStorage.setItem('setshaba-announcements', JSON.stringify(announcements));
+  }, [announcements]);
   
   const updateIssue = (id: number, updates: Partial<Issue>) => {
     setIssues(prev => prev.map(issue => 
@@ -55,8 +90,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
   
   const addIssue = (issue: Omit<Issue, 'id'>) => {
+    // Determine if issue is urgent based on category and keywords
+    const isUrgent = issue.category === "Water" || 
+                    issue.category === "Electricity" ||
+                    issue.title.toLowerCase().includes("burst") ||
+                    issue.title.toLowerCase().includes("leak") ||
+                    issue.title.toLowerCase().includes("outage") ||
+                    issue.title.toLowerCase().includes("emergency") ||
+                    issue.description.toLowerCase().includes("urgent") ||
+                    issue.description.toLowerCase().includes("emergency");
+    
     const newIssue = {
       ...issue,
+      isUrgent,
       id: Math.max(...issues.map(i => i.id)) + 1,
     };
     setIssues(prev => [newIssue, ...prev]);
